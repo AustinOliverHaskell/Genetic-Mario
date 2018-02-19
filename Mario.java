@@ -2,37 +2,82 @@ import java.util.*;
 import java.awt.event.KeyEvent;
 import java.awt.*;
 
-public class Mario extends Thread
+public class Mario extends Thread implements Comparable<Mario>
 {
 	private ArrayList<Integer> dna; 
 	private int size;
 	private int it;
 	private int actionFrequency;
-	private int id;
+	private int MarioId;
+	private long score;
+
+	public boolean continueActions;
 
 	Mario(int id)
 	{
 		dna = new ArrayList<Integer>();
-		size = 1000;
+		size = 8000;
 		it = 0;
 		actionFrequency = 10;
-		this.id = id;
+		this.MarioId = id;
+		score = 0;
+
+		continueActions = true;
 
 		for (int i = 0; i < size; i++)
 		{
 			dna.add(generateKeycode());
 		}
-
 	}
 
-	public void mutate()
+	Mario(Mario m)
 	{
-		// TODO: Implement this
-		// 
-		// Mutation Factors are 
-		//   Actions
-		//   Size of Action List
-		//   Frequency of Actions
+		dna = m.getActionList();
+		size = 8000;
+		it = 0;
+		actionFrequency = 10;
+		this.MarioId = m.getMarioId();
+		score = m.getScore();
+		continueActions = true;
+	}
+
+	Mario(Mario a, Mario b, int id)
+	{
+		dna = new ArrayList<Integer>();
+		size = 8000;
+		it = 0;
+		actionFrequency = 10;
+		this.MarioId = id;
+		score = 0;
+
+		continueActions = true;
+
+		ArrayList<Integer> aList = a.getActionList();
+		ArrayList<Integer> bList = a.getActionList();
+
+		for (int i = 0; i < size; i++)
+		{
+			if (i % 2 == 0)
+			{
+				dna.add(aList.get(i));
+			}
+			else
+			{
+				dna.add(bList.get(i));
+			}
+		}
+	}
+
+	public void mutate(float rate)
+	{
+		Random rand = new Random();
+
+		int numberOfGeneMutations = (int)(rate * (float)size);
+
+		for (int i = 0; i < numberOfGeneMutations; i++)
+		{
+			dna.set(rand.nextInt(size), generateKeycode());
+		}
 	}
 
 	/**
@@ -43,7 +88,7 @@ public class Mario extends Thread
 	{
 		Random rand = new Random();
 
-		int retVal = rand.nextInt(5);
+		int retVal = rand.nextInt(6);
 
 		if (retVal == 0)
 		{
@@ -66,6 +111,10 @@ public class Mario extends Thread
 			// s
 			retVal = KeyEvent.VK_S;
 		}
+		else if (retVal == 4)
+		{
+			retVal = KeyEvent.VK_DOWN;
+		}
 		else
 		{
 			// Move
@@ -75,7 +124,7 @@ public class Mario extends Thread
 		return retVal;
 	}
 
-	private int getNextAction()
+	public int getNextAction()
 	{
 		int retVal = dna.get(it);
 		it++;
@@ -104,15 +153,40 @@ public class Mario extends Thread
 		}
 	}
 
+	public ArrayList<Integer> getActionList()
+	{
+		return this.dna;
+	}
+
+	public int getMarioId()
+	{
+		return this.MarioId;
+	}
+
+	public long getScore()
+	{
+		return this.score;
+	}
+
+	public void setScore(long score)
+	{
+		this.score = score;
+	}
+
+	public void reset()
+	{
+		it = 0;
+	}
+
 	@Override
 	public void run()
 	{
 		try
 		{
 			Robot r = new Robot();
-			while(true)
+			while(continueActions)
 			{
-				doNextAction(r, 50);
+				doNextAction(r, 70);
 			}
 		}
 		catch(Exception error)
@@ -124,6 +198,29 @@ public class Mario extends Thread
 	@Override
 	public String toString()
 	{
-		return "It's a me! Mario #" + Integer.toString(id);
+		return "It's a me! Mario #" + Integer.toString(MarioId);
+	}
+
+	public static void releaseAllKeys()
+	{
+		try
+		{
+			Robot r = new Robot();
+
+			r.keyRelease(KeyEvent.VK_RIGHT);
+			r.keyRelease(KeyEvent.VK_Z);
+			r.keyRelease(KeyEvent.VK_X);
+			r.keyRelease(KeyEvent.VK_A);
+			r.keyRelease(KeyEvent.VK_S);
+		}
+		catch (Exception error)
+		{
+			error.printStackTrace();
+		}
+	}
+
+	public int compareTo(Mario other)
+	{
+		return (int)(getScore() - other.getScore());
 	}
 }
