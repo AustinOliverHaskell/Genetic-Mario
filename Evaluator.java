@@ -11,7 +11,9 @@ public class Evaluator
 	private Rectangle rect;
 	private GameState game;
 
-	Evaluator(ArrayList<Mario> list)
+	private long bestScore = 150;
+
+	Evaluator(ArrayList<Mario> list, GameState game)
 	{
 		try
 		{
@@ -20,13 +22,14 @@ public class Evaluator
 
 			// Select the window at the current mouse position
 			
-			game = new GameState();
-			game.start();
+			game.captureStartScreen();
 
 
 			for (int i = 0; i < list.size(); i++)
 			{
 				long time = System.currentTimeMillis();
+				
+				System.out.println(" ------------------------------------------- ");
 				System.out.println(list.get(i).toString());
 
 				list.get(i).start();
@@ -52,19 +55,9 @@ public class Evaluator
 				{
 					time = System.currentTimeMillis() - time;
 					time = time / 1000;
-					System.out.println(" ------------------------------------------- ");
 					System.out.println("Mario #" + list.get(i).getMarioId() + " Killed after " + time + "s");
 
-					if (time > 250)
-					{
-						time = 0;
-					}
-					else if (time > 150)
-					{
-						time = time / 2;
-					}
-
-					list.get(i).setScore(time);
+					list.get(i).setScore(dist(time));
 
 					// Small delay to check for game over
 					Thread.sleep(500);
@@ -113,11 +106,11 @@ public class Evaluator
 				{
 					time = System.currentTimeMillis() - time;
 					time = time / 1000;
-					System.out.println(" ------------------------------------------- ");
+
+					list.get(i).flagAsWinner();
 					System.out.println("Mario #" + list.get(i).getMarioId() + " won in " + time + "s");
 
-					// x2 Bonus for winning
-					list.get(i).setScore(time * 2);
+					list.get(i).setScore(dist(time));
 
 					GameState.updateValues = false;
 
@@ -134,13 +127,17 @@ public class Evaluator
 					System.out.println("Enabled Screen Checking ... ");
 				}
 			}
-
-			game.stop();
 		}
 		catch (Exception error)
 		{
 			error.printStackTrace();
 		}
+	}
+
+
+	private long dist(long score)
+	{
+		return (long)Math.abs((int)score - bestScore);
 	}
 }
 

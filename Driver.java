@@ -1,70 +1,117 @@
 import java.awt.*;
 import java.util.*;
 import java.awt.event.*;
+import java.util.*;
+import java.io.*;
 
 public class Driver
 {
 	public static void main(String[] args)
 	{
-		int populationSize = 5;
-		int generations = 5;
-		float rate = 0.005f;
-
-		try
+		if (args.length == 0)
 		{
-			Robot robot = new Robot();
+			int populationSize = 30;
+			int generations = 50;
+			float rate = 0.005f;
 
-			System.out.println("Population Size:" + populationSize);
-			System.out.println("Running for " + generations + " generations");
-			System.out.println("Mutation Rate: " + rate + "%");
-
-			robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-			robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-
-			Thread.sleep(500);
-
-			robot.keyPress(KeyEvent.VK_Z);
-			Thread.sleep(100);
-			robot.keyRelease(KeyEvent.VK_Z);
-
-			Thread.sleep(3000);
-
-			ArrayList <Mario> list = new ArrayList<Mario>();
-
-			for (int i = 0; i < populationSize; i++)
+			try
 			{
-				list.add(new Mario(i));
-			}
+				Robot robot = new Robot();
 
-			for (int i = 0; i < generations; i++)
-			{
-				Evaluator e = new Evaluator(list);
+				GameState game = new GameState();
+				game.start();
 
-				Collections.sort(list);
+				System.out.println("Population Size:" + populationSize);
+				System.out.println("Running for " + generations + " generations");
+				System.out.println("Mutation Rate: " + rate + "%");
 
-				System.out.println("Mario #" + list.get(populationSize - 1).getMarioId() + " scored: " + list.get(populationSize - 1).getScore());
+				robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+				robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 
-				for (int m = 0; m < populationSize / 2; m++)
+				Thread.sleep(500);
+
+				robot.keyPress(KeyEvent.VK_Z);
+				Thread.sleep(100);
+				robot.keyRelease(KeyEvent.VK_Z);
+
+				Thread.sleep(3000);
+
+				ArrayList <Mario> list = new ArrayList<Mario>();
+
+				for (int i = 0; i < populationSize; i++)
 				{
-					list.set(m, new Mario(list.get(m), list.get(populationSize - 1), populationSize * i + m + populationSize));
-					list.get(m).mutate(rate);
+					list.add(new Mario(i));
 				}
 
-				for (int m = populationSize / 2; m < populationSize; m++)
+				for (int i = 0; i < generations; i++)
 				{
-					list.set(m, new Mario(list.get(m)));
+					Evaluator e = new Evaluator(list, game);
+
+					Collections.sort(list);
+
+					System.out.println(" ----> Generation: " + i + " Complete! <-----");
+					System.out.println(" ----> Mario #" + list.get(populationSize - 1).getMarioId() + " scored: " + list.get(populationSize - 1).getScore() + " <---- ");
+
+					list.get(populationSize - 1).save("./saved/generation_" + i + ".txt");
+
+					for (int m = 0; m < populationSize / 2; m++)
+					{
+						list.set(m, new Mario(list.get(m), list.get(populationSize - 1), populationSize * i + m + populationSize));
+						list.get(m).mutate(rate);
+					}
+
+					for (int m = populationSize / 2; m < populationSize; m++)
+					{
+						list.set(m, new Mario(list.get(m)));
+					}
+
+					Thread.sleep(5000);
 				}
 
-				Thread.sleep(5000);
-			}
+				robot.keyPress(KeyEvent.VK_ESCAPE);
+				Thread.sleep(100);
+				robot.keyRelease(KeyEvent.VK_ESCAPE);
 
-			robot.keyPress(KeyEvent.VK_ESCAPE);
-			Thread.sleep(100);
-			robot.keyRelease(KeyEvent.VK_ESCAPE);
+				game.end();
+			}
+			catch (Exception error)
+			{
+				error.printStackTrace();
+			}
 		}
-		catch (Exception error)
+		else
 		{
-			error.printStackTrace();
+			try
+			{
+				Robot robot = new Robot();
+
+				robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+				robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+
+				Thread.sleep(500);
+
+				robot.keyPress(KeyEvent.VK_Z);
+				Thread.sleep(100);
+				robot.keyRelease(KeyEvent.VK_Z);
+
+				Thread.sleep(3000);
+
+				Mario m = new Mario(args[0]);
+				GameState game = new GameState();
+
+				game.start();
+				m.start();
+
+				while(!game.blackScreen)
+				{
+					
+				}
+
+			}
+			catch (Exception error)
+			{
+				error.printStackTrace();
+			}
 		}
 
 		System.out.println(" ----- END ----- ");

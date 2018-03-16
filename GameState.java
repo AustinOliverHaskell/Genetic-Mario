@@ -81,9 +81,23 @@ public class GameState extends Thread
 		endProcess = true;
 	}
 
+	public void captureStartScreen()
+	{
+		try
+		{
+			System.out.println("Capturing new screen ... ");
+			startScreen = robot.createScreenCapture(rect);
+		}
+		catch(Exception error)
+		{
+
+		}
+	}
+
 	@Override
 	public void run()
 	{
+		System.out.println("GameState thread running ... ");
 		while (true)
 		{
 			if (endProcess)
@@ -116,6 +130,7 @@ public class GameState extends Thread
 				error.printStackTrace();
 			}
 		}
+		System.out.println("GameState thread dead ... ");
 	}
 
 	private boolean endScreen(BufferedImage buffImg, boolean save)
@@ -334,7 +349,7 @@ public class GameState extends Thread
 			Thread.sleep(100);
 			r.keyRelease(KeyEvent.VK_ENTER);
 
-			Thread.sleep(6000);
+			Thread.sleep(7000);
 		}
 		catch(Exception error)
 		{
@@ -369,6 +384,8 @@ public class GameState extends Thread
 			Thread.sleep(100);
 			System.out.println("Pressed Z");
 			r.keyRelease(KeyEvent.VK_Z);
+
+			Thread.sleep(1000);
 		}
 		catch(Exception error)
 		{
@@ -385,7 +402,7 @@ public class GameState extends Thread
 			r.keyPress(KeyEvent.VK_Z);
 			Thread.sleep(100);
 			r.keyRelease(KeyEvent.VK_Z);
-			Thread.sleep(4000);
+			Thread.sleep(5000);
 		}
 		catch(Exception error)
 		{
